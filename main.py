@@ -2,10 +2,36 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from data import db_session
 from data.db_session import global_init, create_session
 from data.words import Word
+from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Нужно для работы flash-сообщений
 user_id = '123'
+
+# Настройка пути к базе данных SQLite
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'user.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+
+# Модель пользователя
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+
+
+# Создание базы данных и тестового пользователя (выполнить один раз)
+with app.app_context():
+    db.create_all()
+    # Добавим админа, если его еще нет
+    if not User.query.filter_by(username='admin').first():
+        admin = User(username='admin', password='password123')
+        db.session.add(admin)
+        db.session.commit()
 
 
 @app.route('/')
@@ -15,12 +41,14 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        # Простая проверка данных
-        if username in USERS and USERS[username] == password:
-            flash('Вы успешно вошли!', 'success')
+        # Поиск пользователя в БД
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.password == password:
+            flash('Успешный вход через БД!', 'success')
             return redirect(url_for('login'))
         else:
-            flash('Неверное имя пользователя или пароль', 'danger')
+            flash('Пользователь не найден или пароль неверен', 'danger')
 
     return render_template('login.html')
 

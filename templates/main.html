@@ -6,7 +6,6 @@
         <link rel="icon" type="image/png" href="../static/img/android-chrome-192x192.png">
         <link rel="stylesheet" href="../static/css/styles.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
     </head>
     <body>
         <form method="POST" action="/main">
@@ -15,10 +14,13 @@
                 <input class="form-control w-25" value="{{ word }}" maxlength="10" readonly>
             </div>
             <div class="input-group mb-3 mx-auto w-25">
-                <input type="text" name="translation" class="form-control" placeholder="Ответ" aria-describedby="button-addon2" required>
+                <input type="text" name="translation" class="form-control" placeholder="Ответ" required>
                 <button class="btn btn-outline-secondary " type="submit" value="button_input_word" name="action">Ввод</button>
             </div>
         </form>
-        <button type="submit" class="btn btn-dark d-block mx-auto w-25" value="word_bank" name="action">Изменить банк слов</button>
+        <form method="POST" action="/main">
+            <button type="submit" class="btn btn-dark d-block mx-auto w-25" value="word_bank" name="action">Изменить банк слов</button>
+        </form>
     </body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous" defer></script>
 </html>
