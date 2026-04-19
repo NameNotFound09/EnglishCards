@@ -13,8 +13,6 @@ global_init("db/banks.sqlite")
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-word = ''
-word_translation = ''
 
 
 @login_manager.user_loader
@@ -72,24 +70,39 @@ def logout():
 @app.route('/main', methods=['GET', 'POST'])
 @login_required
 def main():
-    global word, word_translation
     db_sess = create_session()
-    user_bank = db_sess.query(Bank).filter(Bank.id == current_user.id).first().bank
-    if request.method == 'GET':
-        word = random.choice(list(user_bank.keys()))
-        word_translation = user_bank[word]
-    elif request.method == 'POST':
+    bank_entry = db_sess.query(Bank).filter(Bank.id == current_user.id).first()
+
+    # Получаем словарь или пустой словарь, если записи нет
+    user_bank = bank_entry.bank if bank_entry and bank_entry.bank else {}
+    words_list = list(user_bank.keys())
+
+    word = None
+    if words_list:
+        word = random.choice(words_list)
+
+    if request.method == 'POST':
         action = request.form.get('action')
-        user_translation = request.form.get('translation', '').strip().lower()
-        if action == 'button_input_word':
-            if user_translation.strip().lower() == word_translation.lower():
-                f = random.choice(list(user_bank.keys()))
-                while f == word:
-                    f = random.choice(list(user_bank.keys()))
-                word = f
-                word_translation = user_bank[word]
-        elif action == 'word_bank':
+
+        if action == 'word_bank':
             return redirect('/words')
+
+        if action == 'button_input_word':
+            if len(words_list) < 2:
+                flash('Добавьте минимум 2 слова в банк, чтобы начать тренировку!', 'warning')
+                return redirect(url_for('main'))
+
+            current_word = request.form.get('current_word')
+            user_translation = request.form.get('translation', '').strip().lower()
+            correct_translation = user_bank.get(current_word, "").lower()
+            if user_translation == correct_translation:
+                flash('Правильно!', 'success')
+                new_word = random.choice([w for w in words_list if w != current_word])
+                return render_template('main.html', word=new_word)
+            else:
+                flash('Неверно, попробуйте еще раз', 'danger')
+                return render_template('main.html', word=current_word)
+
     return render_template('main.html', word=word)
 
 
