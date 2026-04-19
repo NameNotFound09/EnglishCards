@@ -5,6 +5,8 @@ from data.Users import User
 from sqlalchemy import orm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from forms import LoginForm, RegisterForm
+import os
+from werkzeug.utils import secure_filename
 import random
 
 app = Flask(__name__)
@@ -13,6 +15,13 @@ global_init("db/banks.sqlite")
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+UPLOAD_FOLDER = 'static/avatars'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @login_manager.user_loader
@@ -72,11 +81,8 @@ def logout():
 def main():
     db_sess = create_session()
     bank_entry = db_sess.query(Bank).filter(Bank.id == current_user.id).first()
-
-    # Получаем словарь или пустой словарь, если записи нет
     user_bank = bank_entry.bank if bank_entry and bank_entry.bank else {}
     words_list = list(user_bank.keys())
-
     word = None
     if words_list:
         word = random.choice(words_list)
@@ -132,6 +138,29 @@ def words():
         elif home:
             return redirect('/main')
     return render_template('words.html', words=user_bank)
+
+
+@app.route('/update_avatar', methods=['POST'])
+@login_required
+def update_avatar():
+    if 'avatar_file' not in request.files:
+        flash('Файл не выбран', 'danger')
+        return redirect(url_for('main'))
+    file = request.files['avatar_file']
+    if file and allowed_file(file.filename):
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = secure_filename(f"user_{current_user.id}.{ext}")
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        db_sess = create_session()
+        user = db_sess.get(User, current_user.id)
+        user.avatar_path = f"avatars/{filename}"
+        db_sess.commit()
+
+        flash('Аватар обновлен!', 'success')
+    else:
+        flash('Недопустимый формат файла', 'danger')
+    return redirect(url_for('main'))
 
 
 if __name__ == '__main__':
