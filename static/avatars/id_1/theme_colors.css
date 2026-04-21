@@ -1,0 +1,19 @@
+
+        /* Автогенерируемая тема пользователя 1 */
+        body {
+            background: linear-gradient(180deg, rgb(34, 37, 45) 0%, #121212 100%) !important;
+            background-attachment: fixed !important;
+        }
+        .main-card {
+            border-top: 4px solid rgb(103, 113, 136) !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
+        }
+        .btn-success {
+            background-color: rgb(103, 113, 136) !important;
+            border-color: rgb(103, 113, 136) !important;
+            box-shadow: 0 0 15px rgba(103,113,136, 0.4);
+        }
+        .profile-img {
+            border: 2px solid rgb(103, 113, 136) !important;
+        }
+        
