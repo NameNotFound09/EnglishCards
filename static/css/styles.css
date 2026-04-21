@@ -7,3 +7,22 @@ h2 {
 .buttons_login {
     text_align: auto;
 }
+.translation-hidden {
+    color: transparent !important;
+    background-color: #2b2b2b;
+    border-radius: 4px;
+    padding: 0 10px;
+    transition: all 0.2s ease;
+    cursor: help;
+    user-select: none;
+}
+.list-group-item:hover .translation-hidden {
+    color: #198754 !important;
+    background-color: transparent;
+}
+.list-group-item:active .translation-hidden {
+    filter: blur(0);
+}
+.uppercase { text-transform: uppercase; letter-spacing: 1px; }
+.modal-content { box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+.btn-outline-info:hover { color: #000; }
